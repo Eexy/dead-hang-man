@@ -1,7 +1,7 @@
 use std::{
     collections::HashSet,
     fs::File,
-    io::{self, BufRead, BufReader, Write, stdout},
+    io::{self, BufRead, BufReader, Write},
     iter::repeat_n,
 };
 
@@ -10,14 +10,16 @@ fn read_dictionary() -> Result<Vec<String>, String> {
         File::open("dictionary.txt").map_err(|err| format!("unable to read dictionary: {err}"))?;
     let reader = BufReader::new(file);
 
-    let lines = reader.lines().flatten().collect::<Vec<_>>();
+    let lines = reader
+        .lines()
+        .filter_map(|line| line.map(|l| l.trim().to_ascii_uppercase()).ok())
+        .collect::<Vec<_>>();
 
     Ok(lines)
 }
 
 fn main() -> Result<(), String> {
     let dictionary = read_dictionary()?;
-    dbg!(&dictionary);
 
     let choosen_word_idx = rand::random_range(0..dictionary.len());
     let choosen_word = &dictionary
@@ -46,27 +48,30 @@ fn main() -> Result<(), String> {
             .map_err(|err| format!("unable to read user input: {err}"))?;
 
         let first_letter = buffer
+            .trim()
             .chars()
             .next()
             .ok_or_else(|| "unable to extract char".to_string())?
             .to_ascii_uppercase();
 
-        if !choosen_word.contains(first_letter) {
-            tests += 1;
+        if tried_letters.insert(first_letter) {
+            if !choosen_word.contains(first_letter) {
+                tests += 1;
+            }
+
+            obfuscated_word = choosen_word
+                .chars()
+                .map(|ch| {
+                    if tried_letters.contains(&ch.to_ascii_uppercase()) {
+                        return ch;
+                    }
+
+                    '_'
+                })
+                .collect::<String>();
+        } else {
+            println!("You already tried this letter: {}", first_letter);
         }
-
-        tried_letters.insert(first_letter);
-
-        obfuscated_word = choosen_word
-            .chars()
-            .map(|ch| {
-                if tried_letters.contains(&ch.to_ascii_uppercase()) {
-                    return ch;
-                }
-
-                '_'
-            })
-            .collect::<String>();
     }
 
     if choosen_word.eq(&obfuscated_word) {
