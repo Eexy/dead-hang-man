@@ -4,3 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+todo = "warn"
+single_match = "deny"
+len_zero = "deny"
