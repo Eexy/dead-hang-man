@@ -1,5 +1,5 @@
 use std::{
-    collections::HashSet,
+    collections::BTreeSet,
     fs::File,
     io::{self, BufRead, BufReader, Write},
 };
@@ -17,7 +17,7 @@ fn read_dictionary() -> Result<Vec<String>, String> {
     Ok(lines)
 }
 
-fn obfuscate_word(tried_letters: &HashSet<char>, choosen_word: &str) -> String {
+fn obfuscate_word(tried_letters: &BTreeSet<char>, choosen_word: &str) -> String {
     choosen_word
         .chars()
         .map(|ch| {
@@ -38,7 +38,7 @@ fn main() -> Result<(), String> {
         .get(choosen_word_idx)
         .ok_or("unable to select a word".to_string())?;
 
-    let mut tried_letters: HashSet<char> = HashSet::new();
+    let mut tried_letters: BTreeSet<char> = BTreeSet::new();
     let mut buffer = String::new();
     let max_tries = 6;
     let mut tests = 0;
