@@ -62,22 +62,28 @@ fn main() -> Result<(), String> {
             .read_line(&mut buffer)
             .map_err(|err| format!("unable to read user input: {err}"))?;
 
-        let first_letter = buffer
-            .trim()
-            .chars()
-            .next()
-            .ok_or_else(|| "unable to extract char".to_string())?
-            .to_ascii_uppercase();
+        let Some(letter) = buffer.trim().chars().next() else {
+            println!("Please type a letter");
+            continue;
+        };
 
-        if tried_letters.insert(first_letter) {
-            if !chosen_word.contains(first_letter) {
-                tests += 1;
-            }
-
-            obfuscated_word = obfuscate_word(&tried_letters, &chosen_word);
-        } else {
-            println!("You already tried this letter: {}", first_letter);
+        if !letter.is_ascii_alphabetic() {
+            println!("'{letter}' is not a letter.");
+            continue;
         }
+
+        let uppercased_letter = letter.to_ascii_uppercase();
+
+        if !tried_letters.insert(uppercased_letter) {
+            println!("You already tried this letter: {uppercased_letter}");
+            continue;
+        }
+
+        if !chosen_word.contains(uppercased_letter) {
+            tests += 1;
+        }
+
+        obfuscated_word = obfuscate_word(&tried_letters, &chosen_word);
     }
 
     if chosen_word.eq(&obfuscated_word) {
