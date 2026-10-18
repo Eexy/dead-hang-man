@@ -14,6 +14,7 @@ fn read_dictionary() -> Result<Vec<String>, String> {
     let lines = reader
         .lines()
         .filter_map(|line| line.map(|l| l.trim().to_ascii_uppercase()).ok())
+        .filter(|line| !line.is_empty())
         .collect::<Vec<_>>();
 
     Ok(lines)
