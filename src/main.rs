@@ -4,6 +4,8 @@ use std::{
     io::{self, BufRead, BufReader, Write},
 };
 
+use rand::seq::IndexedRandom;
+
 fn read_dictionary() -> Result<Vec<String>, String> {
     let file =
         File::open("dictionary.txt").map_err(|err| format!("unable to read dictionary: {err}"))?;
@@ -55,10 +57,14 @@ fn load_saves() -> Result<File, String> {
         .map_err(|err| format!("unable to open create / open saves file: {err}"))
 }
 
-fn save_game(chosen_word: &str, number_of_tries: u8, outcome: Outcome) -> Result<(), String> {
+fn save_game(
+    chosen_word: &str,
+    number_of_failed_tries: u8,
+    outcome: Outcome,
+) -> Result<(), String> {
     let mut save_file = load_saves()?;
     let content = format!(
-        "word to find: {chosen_word}, number of failed tries: {number_of_tries}, status: {outcome};\n"
+        "word to find: {chosen_word}, number of failed tries: {number_of_failed_tries}, status: {outcome};\n"
     );
 
     save_file
@@ -70,10 +76,9 @@ fn save_game(chosen_word: &str, number_of_tries: u8, outcome: Outcome) -> Result
 fn main() -> Result<(), String> {
     let dictionary = read_dictionary()?;
 
-    let choosen_word_idx = rand::random_range(0..dictionary.len());
     let chosen_word = dictionary
-        .get(choosen_word_idx)
-        .ok_or("unable to select a word".to_string())?;
+        .choose(&mut rand::rng())
+        .ok_or("unable to select a word")?;
 
     let mut tried_letters: BTreeSet<char> = BTreeSet::new();
     let mut buffer = String::new();
