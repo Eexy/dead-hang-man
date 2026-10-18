@@ -115,6 +115,7 @@ impl Game {
             return GuessResult::InvalidInput;
         }
 
+        let letter = letter.to_ascii_uppercase();
         // Insert letter and return a boolean. true when letter doesn't exist and false otherwise
         if !self.tried.insert(letter) {
             return GuessResult::AlreadyTried;
@@ -171,14 +172,12 @@ fn main() -> Result<(), String> {
             continue;
         };
 
-        let uppercased_letter = letter.to_ascii_uppercase();
-
-        match game.guest(uppercased_letter) {
+        match game.guest(letter) {
             GuessResult::InvalidInput => {
-                println!("'{uppercased_letter}' is not a letter.");
+                println!("'{letter}' is not a letter.");
             }
             GuessResult::AlreadyTried => {
-                println!("You already tried this letter: {uppercased_letter}");
+                println!("You already tried this letter: {letter}");
             }
             GuessResult::Miss => {
                 println!("wrong guess");
