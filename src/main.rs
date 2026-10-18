@@ -78,7 +78,7 @@ struct Game {
 
 impl Game {
     fn is_won(&self) -> bool {
-        self.word.chars().all(|ch| self.tried.contains(&ch)) && self.failed_tries < self.max_tries
+        self.letter_to_find.is_subset(&self.tried)
     }
 
     fn is_lost(&self) -> bool {
