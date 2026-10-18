@@ -13,24 +13,11 @@ fn read_dictionary() -> Result<Vec<String>, String> {
 
     let lines = reader
         .lines()
-        .filter_map(|line| line.map(|l| l.trim().to_ascii_uppercase()).ok())
+        .filter_map(|line| line.map(|l| l.trim().to_string()).ok())
         .filter(|line| !line.is_empty())
         .collect::<Vec<_>>();
 
     Ok(lines)
-}
-
-fn obfuscate_word(tried_letters: &BTreeSet<char>, choosen_word: &str) -> String {
-    choosen_word
-        .chars()
-        .map(|ch| {
-            if tried_letters.contains(&ch) {
-                return ch;
-            }
-
-            '_'
-        })
-        .collect()
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -50,7 +37,7 @@ impl std::fmt::Display for Outcome {
 
 const SAVES_PATH: &str = "saves.txt";
 
-fn load_saves() -> Result<File, String> {
+fn open_saves_file() -> Result<File, String> {
     File::options()
         .append(true)
         .create(true)
@@ -63,7 +50,7 @@ fn save_game(
     number_of_failed_tries: u8,
     outcome: Outcome,
 ) -> Result<(), String> {
-    let mut save_file = load_saves()?;
+    let mut save_file = open_saves_file()?;
     let content = format!(
         "word to find: {chosen_word}, number of failed tries: {number_of_failed_tries}, status: {outcome};\n"
     );
@@ -74,27 +61,89 @@ fn save_game(
     Ok(())
 }
 
+enum GuessResult {
+    Hit,
+    Miss,
+    AlreadyTried,
+    NoLetter,
+}
+
+struct Game {
+    word: String,
+    letter_to_find: BTreeSet<char>,
+    tried: BTreeSet<char>,
+    failed_tries: u8,
+    max_tries: u8,
+}
+
+impl Game {
+    fn is_won(&self) -> bool {
+        self.word.chars().all(|ch| self.tried.contains(&ch)) && self.failed_tries < self.max_tries
+    }
+
+    fn is_lost(&self) -> bool {
+        self.failed_tries >= self.max_tries
+    }
+
+    fn masked(&self) -> String {
+        self.word
+            .chars()
+            .map(|ch| {
+                if self.tried.contains(&ch) {
+                    return ch;
+                }
+
+                return '_';
+            })
+            .collect()
+    }
+
+    fn guest(&mut self, letter: char) -> GuessResult {
+        if !letter.is_ascii_alphabetic() {
+            return GuessResult::NoLetter;
+        }
+
+        // Insert letter and return a boolean. true when letter doesn't exist and false otherwise
+        if !self.tried.insert(letter) {
+            return GuessResult::AlreadyTried;
+        }
+
+        if !self.letter_to_find.contains(&letter) {
+            self.failed_tries += 1;
+            return GuessResult::Miss;
+        }
+
+        GuessResult::Hit
+    }
+}
+
 fn main() -> Result<(), String> {
     let dictionary = read_dictionary()?;
 
     let chosen_word = dictionary
         .choose(&mut rand::rng())
-        .ok_or("unable to select a word")?;
+        .ok_or("unable to select a word")?
+        .to_ascii_uppercase();
 
-    let mut tried_letters: BTreeSet<char> = BTreeSet::new();
+    let mut game = Game {
+        failed_tries: 0,
+        letter_to_find: BTreeSet::from_iter(chosen_word.chars()),
+        tried: BTreeSet::new(),
+        word: chosen_word,
+        max_tries: 6,
+    };
+
     let mut buffer = String::new();
-    let max_tries = 6u8;
-    let mut tests = 0u8;
-    let mut obfuscated_word = obfuscate_word(&tried_letters, chosen_word);
 
-    while obfuscated_word != *chosen_word && tests < max_tries {
-        println!("word: {obfuscated_word}");
-        let tried_letters_stirng = tried_letters
+    while !game.is_lost() && !game.is_won() {
+        println!("word: {}", game.masked());
+        let tried_letters_string = game
+            .tried
             .iter()
             .map(char::to_string)
             .collect::<Vec<_>>()
             .join(" ");
-        println!("Previous tried letters: {tried_letters_stirng}");
+        println!("Previous tried letters: {tried_letters_string}");
 
         print!("Please enter a letter: ");
         io::stdout()
@@ -110,34 +159,34 @@ fn main() -> Result<(), String> {
             continue;
         };
 
-        if !letter.is_ascii_alphabetic() {
-            println!("'{letter}' is not a letter.");
-            continue;
-        }
-
         let uppercased_letter = letter.to_ascii_uppercase();
 
-        if !tried_letters.insert(uppercased_letter) {
-            println!("You already tried this letter: {uppercased_letter}");
-            continue;
+        match game.guest(uppercased_letter) {
+            GuessResult::NoLetter => {
+                println!("'{uppercased_letter}' is not a letter.");
+                continue;
+            }
+            GuessResult::AlreadyTried => {
+                println!("You already tried this letter: {uppercased_letter}");
+                continue;
+            }
+            GuessResult::Miss => {
+                println!("wrong guess");
+                continue;
+            }
+            GuessResult::Hit => {}
         }
-
-        if !chosen_word.contains(uppercased_letter) {
-            tests += 1;
-        }
-
-        obfuscated_word = obfuscate_word(&tried_letters, chosen_word);
     }
 
-    let outcome = if chosen_word == obfuscated_word {
+    let outcome = if game.is_won() {
         Outcome::Won
     } else {
         Outcome::Lost
     };
 
-    println!("you {outcome}, chosen word were: {chosen_word}");
+    println!("you {outcome}, chosen word were: {}", game.word);
 
-    save_game(chosen_word, tests, outcome)?;
+    save_game(&game.word, game.failed_tries, outcome)?;
 
     Ok(())
 }
