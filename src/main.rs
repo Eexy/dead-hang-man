@@ -87,7 +87,7 @@ fn main() -> Result<(), String> {
     let mut tests = 0u8;
     let mut obfuscated_word = obfuscate_word(&tried_letters, chosen_word);
 
-    while !obfuscated_word.eq(chosen_word) && tests < max_tries {
+    while obfuscated_word != *chosen_word && tests < max_tries {
         println!("word: {obfuscated_word}");
         let tried_letters_stirng = tried_letters
             .iter()
@@ -129,7 +129,7 @@ fn main() -> Result<(), String> {
         obfuscated_word = obfuscate_word(&tried_letters, chosen_word);
     }
 
-    let outcome = if chosen_word.eq(&obfuscated_word) {
+    let outcome = if chosen_word == obfuscated_word {
         Outcome::Won
     } else {
         Outcome::Lost
