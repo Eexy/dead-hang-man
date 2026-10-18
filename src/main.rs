@@ -77,6 +77,18 @@ struct Game {
 }
 
 impl Game {
+    fn new(word: &str, max_tries: u8) -> Self {
+        let uppercased_word = word.to_ascii_uppercase();
+
+        Self {
+            letter_to_find: uppercased_word.chars().collect(),
+            word: uppercased_word,
+            tried: BTreeSet::new(),
+            failed_tries: 0,
+            max_tries,
+        }
+    }
+
     fn is_won(&self) -> bool {
         self.letter_to_find.is_subset(&self.tried)
     }
@@ -117,6 +129,8 @@ impl Game {
     }
 }
 
+const ALLOWED_MAX_TRIES: u8 = 6;
+
 fn main() -> Result<(), String> {
     let dictionary = read_dictionary()?;
 
@@ -125,13 +139,7 @@ fn main() -> Result<(), String> {
         .ok_or("unable to select a word")?
         .to_ascii_uppercase();
 
-    let mut game = Game {
-        failed_tries: 0,
-        letter_to_find: BTreeSet::from_iter(chosen_word.chars()),
-        tried: BTreeSet::new(),
-        word: chosen_word,
-        max_tries: 6,
-    };
+    let mut game = Game::new(&chosen_word, ALLOWED_MAX_TRIES);
 
     let mut buffer = String::new();
 
