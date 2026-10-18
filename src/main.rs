@@ -30,11 +30,13 @@ fn obfuscate_word(tried_letters: &BTreeSet<char>, choosen_word: &str) -> String 
         .collect::<String>()
 }
 
+const SAVES_PATH: &str = "saves.txt";
+
 fn load_saves() -> Result<File, String> {
     Ok(File::options()
         .append(true)
         .create(true)
-        .open("saves.txt")
+        .open(SAVES_PATH)
         .map_err(|err| format!("unable to open create / open saves file: {err}"))?)
 }
 
