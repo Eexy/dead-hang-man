@@ -65,7 +65,7 @@ enum GuessResult {
     Hit,
     Miss,
     AlreadyTried,
-    NoLetter,
+    InvalidInput,
 }
 
 struct Game {
@@ -100,7 +100,7 @@ impl Game {
 
     fn guest(&mut self, letter: char) -> GuessResult {
         if !letter.is_ascii_alphabetic() {
-            return GuessResult::NoLetter;
+            return GuessResult::InvalidInput;
         }
 
         // Insert letter and return a boolean. true when letter doesn't exist and false otherwise
@@ -162,7 +162,7 @@ fn main() -> Result<(), String> {
         let uppercased_letter = letter.to_ascii_uppercase();
 
         match game.guest(uppercased_letter) {
-            GuessResult::NoLetter => {
+            GuessResult::InvalidInput => {
                 println!("'{uppercased_letter}' is not a letter.");
             }
             GuessResult::AlreadyTried => {
