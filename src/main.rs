@@ -85,7 +85,7 @@ fn main() -> Result<(), String> {
         println!("word: {obfuscated_word}");
         let tried_letters_stirng = tried_letters
             .iter()
-            .map(|ch| ch.to_string())
+            .map(char::to_string)
             .collect::<Vec<_>>()
             .join(" ");
         println!("Previous tried letters: {tried_letters_stirng}");
