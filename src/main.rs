@@ -77,8 +77,8 @@ fn main() -> Result<(), String> {
 
     let mut tried_letters: BTreeSet<char> = BTreeSet::new();
     let mut buffer = String::new();
-    let max_tries = 6;
-    let mut tests = 0;
+    let max_tries = 6u8;
+    let mut tests = 0u8;
     let mut obfuscated_word = obfuscate_word(&tried_letters, chosen_word);
 
     while !obfuscated_word.eq(chosen_word) && tests < max_tries {
