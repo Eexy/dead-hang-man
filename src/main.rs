@@ -1,7 +1,7 @@
 use std::{
     collections::BTreeSet,
-    fs::{self, File},
-    io::{self, BufRead, BufReader, BufWriter, Write},
+    fs::File,
+    io::{self, BufRead, BufReader, Write},
 };
 
 fn read_dictionary() -> Result<Vec<String>, String> {
