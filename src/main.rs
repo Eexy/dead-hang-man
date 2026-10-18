@@ -31,16 +31,14 @@ fn obfuscate_word(tried_letters: &BTreeSet<char>, choosen_word: &str) -> String 
 }
 
 fn load_saves() -> Result<File, String> {
-    let file = File::options()
+    Ok(File::options()
         .append(true)
         .create(true)
         .open("saves.txt")
-        .map_err(|err| format!("unable to open create / open saves file: {err}"))?;
-
-    return Ok(file);
+        .map_err(|err| format!("unable to open create / open saves file: {err}"))?)
 }
 
-fn save_game(chosen_word: &String, number_of_tries: i32, is_won: bool) -> Result<(), String> {
+fn save_game(chosen_word: &str, number_of_tries: i32, is_won: bool) -> Result<(), String> {
     let mut save_file = load_saves()?;
     let status = if is_won { "won" } else { "lost" };
     let content = format!(
