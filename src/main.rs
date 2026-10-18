@@ -1,7 +1,7 @@
 use std::{
     collections::BTreeSet,
-    fs::File,
-    io::{self, BufRead, BufReader, Write},
+    fs::{self, File},
+    io::{self, BufRead, BufReader, BufWriter, Write},
 };
 
 fn read_dictionary() -> Result<Vec<String>, String> {
@@ -28,6 +28,28 @@ fn obfuscate_word(tried_letters: &BTreeSet<char>, choosen_word: &str) -> String 
             '_'
         })
         .collect::<String>()
+}
+
+fn load_saves() -> Result<File, String> {
+    let file = File::options()
+        .append(true)
+        .create(true)
+        .open("saves.txt")
+        .map_err(|err| format!("unable to open create / open saves file: {err}"))?;
+
+    return Ok(file);
+}
+
+fn save_game(chosen_word: &String, number_of_tries: i32, is_won: bool) -> Result<(), String> {
+    let mut save_file = load_saves()?;
+    let status = if is_won { "won" } else { "lost" };
+    let content = format!(
+        "word to find: {chosen_word}, number of tries: {number_of_tries}, status: {status};"
+    );
+    writeln!(&mut save_file, "{content}")
+        .map_err(|err| format!("unable to write to save file {err}"))?;
+
+    Ok(())
 }
 
 fn main() -> Result<(), String> {
@@ -86,11 +108,15 @@ fn main() -> Result<(), String> {
         obfuscated_word = obfuscate_word(&tried_letters, &chosen_word);
     }
 
-    if chosen_word.eq(&obfuscated_word) {
+    let is_won = chosen_word.eq(&obfuscated_word);
+
+    if is_won {
         println!("you won");
     } else {
         print!("you lost");
     }
+
+    save_game(chosen_word, tests, is_won)?;
 
     Ok(())
 }
