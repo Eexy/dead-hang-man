@@ -30,6 +30,21 @@ fn obfuscate_word(tried_letters: &BTreeSet<char>, choosen_word: &str) -> String 
         .collect::<String>()
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+enum Outcome {
+    Won,
+    Lost,
+}
+
+impl std::fmt::Display for Outcome {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Outcome::Won => "won",
+            Outcome::Lost => "lost",
+        })
+    }
+}
+
 const SAVES_PATH: &str = "saves.txt";
 
 fn load_saves() -> Result<File, String> {
@@ -40,15 +55,15 @@ fn load_saves() -> Result<File, String> {
         .map_err(|err| format!("unable to open create / open saves file: {err}"))?)
 }
 
-fn save_game(chosen_word: &str, number_of_tries: i32, is_won: bool) -> Result<(), String> {
+fn save_game(chosen_word: &str, number_of_tries: i32, outcome: Outcome) -> Result<(), String> {
     let mut save_file = load_saves()?;
-    let status = if is_won { "won" } else { "lost" };
     let content = format!(
-        "word to find: {chosen_word}, number of tries: {number_of_tries}, status: {status};"
+        "word to find: {chosen_word}, number of tries: {number_of_tries}, status: {outcome};\n"
     );
-    writeln!(&mut save_file, "{content}")
-        .map_err(|err| format!("unable to write to save file {err}"))?;
 
+    save_file
+        .write_all(content.as_bytes())
+        .map_err(|err| format!("unable to write save file: {err}"))?;
     Ok(())
 }
 
@@ -105,18 +120,18 @@ fn main() -> Result<(), String> {
             tests += 1;
         }
 
-        obfuscated_word = obfuscate_word(&tried_letters, &chosen_word);
+        obfuscated_word = obfuscate_word(&tried_letters, chosen_word);
     }
 
-    let is_won = chosen_word.eq(&obfuscated_word);
-
-    if is_won {
-        println!("you won");
+    let outcome = if chosen_word.eq(&obfuscated_word) {
+        Outcome::Won
     } else {
-        print!("you lost");
-    }
+        Outcome::Lost
+    };
 
-    save_game(chosen_word, tests, is_won)?;
+    println!("you {outcome}, chosen word were: {chosen_word}");
+
+    save_game(chosen_word, tests, outcome)?;
 
     Ok(())
 }
