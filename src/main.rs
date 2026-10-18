@@ -30,7 +30,7 @@ fn obfuscate_word(tried_letters: &BTreeSet<char>, choosen_word: &str) -> String 
 
             '_'
         })
-        .collect::<String>()
+        .collect()
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
