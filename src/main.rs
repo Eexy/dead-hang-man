@@ -82,13 +82,13 @@ fn main() -> Result<(), String> {
     let mut obfuscated_word = obfuscate_word(&tried_letters, chosen_word);
 
     while !obfuscated_word.eq(chosen_word) && tests < max_tries {
-        println!("word: {}", obfuscated_word);
+        println!("word: {obfuscated_word}");
         let tried_letters_stirng = tried_letters
             .iter()
             .map(|ch| ch.to_string())
             .collect::<Vec<_>>()
             .join(" ");
-        println!("Previous tried letters: {}", tried_letters_stirng);
+        println!("Previous tried letters: {tried_letters_stirng}");
 
         print!("Please enter a letter: ");
         io::stdout()
