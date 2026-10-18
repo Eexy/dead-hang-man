@@ -48,11 +48,11 @@ impl std::fmt::Display for Outcome {
 const SAVES_PATH: &str = "saves.txt";
 
 fn load_saves() -> Result<File, String> {
-    Ok(File::options()
+    File::options()
         .append(true)
         .create(true)
         .open(SAVES_PATH)
-        .map_err(|err| format!("unable to open create / open saves file: {err}"))?)
+        .map_err(|err| format!("unable to open create / open saves file: {err}"))
 }
 
 fn save_game(chosen_word: &str, number_of_tries: u8, outcome: Outcome) -> Result<(), String> {
