@@ -104,7 +104,7 @@ impl Game {
             .collect()
     }
 
-    fn guest(&mut self, letter: char) -> GuessResult {
+    fn guess(&mut self, letter: char) -> GuessResult {
         if !letter.is_ascii_alphabetic() {
             return GuessResult::InvalidInput;
         }
@@ -166,7 +166,7 @@ fn main() -> Result<(), String> {
             continue;
         };
 
-        match game.guest(letter) {
+        match game.guess(letter) {
             GuessResult::InvalidInput => {
                 println!("'{letter}' is not a letter.");
             }
