@@ -55,7 +55,7 @@ fn load_saves() -> Result<File, String> {
         .map_err(|err| format!("unable to open create / open saves file: {err}"))?)
 }
 
-fn save_game(chosen_word: &str, number_of_tries: i32, outcome: Outcome) -> Result<(), String> {
+fn save_game(chosen_word: &str, number_of_tries: u8, outcome: Outcome) -> Result<(), String> {
     let mut save_file = load_saves()?;
     let content = format!(
         "word to find: {chosen_word}, number of tries: {number_of_tries}, status: {outcome};\n"
