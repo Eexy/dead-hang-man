@@ -51,14 +51,12 @@ fn save_game(
     outcome: Outcome,
 ) -> Result<(), String> {
     let mut save_file = open_saves_file()?;
-    let content = format!(
-        "word to find: {chosen_word}, number of failed tries: {number_of_failed_tries}, status: {outcome};\n"
-    );
 
-    save_file
-        .write_all(content.as_bytes())
-        .map_err(|err| format!("unable to write save file: {err}"))?;
-    Ok(())
+    writeln!(
+        save_file,
+        "word to find: {chosen_word}, number of failed tries: {number_of_failed_tries}, status: {outcome};"
+    )
+    .map_err(|err| format!("unable to write save file: {err}"))
 }
 
 enum GuessResult {
