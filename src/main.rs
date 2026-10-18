@@ -131,10 +131,9 @@ fn main() -> Result<(), String> {
 
     let chosen_word = dictionary
         .choose(&mut rand::rng())
-        .ok_or("unable to select a word")?
-        .to_ascii_uppercase();
+        .ok_or("unable to select a word")?;
 
-    let mut game = Game::new(&chosen_word, ALLOWED_MAX_TRIES);
+    let mut game = Game::new(chosen_word, ALLOWED_MAX_TRIES);
 
     let mut buffer = String::new();
 
