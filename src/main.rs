@@ -164,15 +164,12 @@ fn main() -> Result<(), String> {
         match game.guest(uppercased_letter) {
             GuessResult::NoLetter => {
                 println!("'{uppercased_letter}' is not a letter.");
-                continue;
             }
             GuessResult::AlreadyTried => {
                 println!("You already tried this letter: {uppercased_letter}");
-                continue;
             }
             GuessResult::Miss => {
                 println!("wrong guess");
-                continue;
             }
             GuessResult::Hit => {}
         }
