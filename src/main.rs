@@ -158,9 +158,13 @@ fn main() -> Result<(), String> {
             .flush()
             .map_err(|err| format!("unable to flush stdout: {err}"))?;
         buffer.clear();
-        io::stdin()
+        let bytes_read = io::stdin()
             .read_line(&mut buffer)
             .map_err(|err| format!("unable to read user input: {err}"))?;
+
+        if bytes_read == 0 {
+            return Err("input closed".into());
+        }
 
         let Some(letter) = buffer.trim().chars().next() else {
             println!("Please type a letter");
