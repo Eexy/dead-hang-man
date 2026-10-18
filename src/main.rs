@@ -100,13 +100,7 @@ impl Game {
     fn masked(&self) -> String {
         self.word
             .chars()
-            .map(|ch| {
-                if self.tried.contains(&ch) {
-                    return ch;
-                }
-
-                return '_';
-            })
+            .map(|ch| if self.tried.contains(&ch) { ch } else { '_' })
             .collect()
     }
 
